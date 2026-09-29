@@ -5,7 +5,12 @@ import { getUserSubmittedItems } from '../services/api.js';
 import { stripHtml } from '../utils/text.js';
 
 function getInitial(userId) {
-  return String(userId || '?').trim().slice(0, 1).toUpperCase() || '?';
+  return (
+    String(userId || '?')
+      .trim()
+      .slice(0, 1)
+      .toUpperCase() || '?'
+  );
 }
 
 function formatActivityTitle(item) {
@@ -53,7 +58,7 @@ function Profile() {
         if (cancelled) {
           return;
         }
-
+        /*@ts-ignore*/
         setErrorMessage(error.message || 'Impossibile recuperare il profilo.');
         setStatus('error');
       }
@@ -92,7 +97,8 @@ function Profile() {
             <p className="section-kicker">Autori</p>
             <h3>Profilo e attività di un utente</h3>
             <p className="section-subtitle">
-              Recupera i dettagli di un profilo Hacker News e le sue ultime submission in una vista più editoriale.
+              Recupera i dettagli di un profilo Hacker News e le sue ultime submission in una vista
+              più editoriale.
             </p>
           </div>
         </div>
@@ -111,7 +117,12 @@ function Profile() {
               />
             </div>
           </div>
-          <button id="load-user-button" className="btn btn-primary" type="button" onClick={handleLoad}>
+          <button
+            id="load-user-button"
+            className="btn btn-primary"
+            type="button"
+            onClick={handleLoad}
+          >
             Carica autore
           </button>
         </div>
@@ -120,7 +131,9 @@ function Profile() {
       <section className="page-section profile-layout">
         <div id="profile-root">
           {status === 'idle' && (
-            <div className="state-panel empty">Inserisci uno username per visualizzare il profilo.</div>
+            <div className="state-panel empty">
+              Inserisci uno username per visualizzare il profilo.
+            </div>
           )}
           {status === 'missing-input' && (
             <div className="state-panel error">
@@ -142,7 +155,8 @@ function Profile() {
                 <p className="eyebrow">Profilo autore</p>
                 <h2 className="profile-title">{user.id}</h2>
                 <p className="profile-about">
-                  {stripHtml(user.about || '').trim() || 'Nessuna bio pubblica disponibile per questo autore.'}
+                  {stripHtml(user.about || '').trim() ||
+                    'Nessuna bio pubblica disponibile per questo autore.'}
                 </p>
                 <div className="profile-meta-grid">
                   <div className="profile-stat">
@@ -177,7 +191,9 @@ function Profile() {
           {status === 'missing-input' && (
             <div className="state-panel empty">Le ultime attività verranno mostrate qui.</div>
           )}
-          {status === 'loading' && <div className="state-panel loading">Carico l'attività recente...</div>}
+          {status === 'loading' && (
+            <div className="state-panel loading">Carico l'attività recente...</div>
+          )}
           {status === 'error' && (
             <div className="state-panel error">
               <strong>Errore</strong>

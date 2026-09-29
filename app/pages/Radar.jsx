@@ -38,7 +38,7 @@ function Radar() {
         if (cancelled) {
           return;
         }
-
+        /*@ts-ignore*/
         setErrorMessage(error.message || 'Impossibile caricare il radar.');
         setStatus('error');
       }
@@ -54,7 +54,9 @@ function Radar() {
   const totalScore = stories.reduce((sum, story) => sum + (story.score || 0), 0);
   const totalComments = stories.reduce((sum, story) => sum + (story.descendants || 0), 0);
   const hottest = [...stories].sort((left, right) => (right.score || 0) - (left.score || 0))[0];
-  const mostDiscussed = [...stories].sort((left, right) => (right.descendants || 0) - (left.descendants || 0))[0];
+  const mostDiscussed = [...stories].sort(
+    (left, right) => (right.descendants || 0) - (left.descendants || 0)
+  )[0];
 
   return (
     <>
@@ -64,16 +66,16 @@ function Radar() {
             <p className="section-kicker">Radar</p>
             <h3>Scorri le storie più interessanti e apri quella che vuoi leggere</h3>
             <p className="section-subtitle">
-              Ogni riga porta al focus della story, così puoi passare dalla panoramica alla lettura senza passaggi
-              inutili.
+              Ogni riga porta al focus della story, così puoi passare dalla panoramica alla lettura
+              senza passaggi inutili.
             </p>
           </div>
         </div>
 
         {/* TODO 2: Mancano le classi per alcuni elementi di questo gruppo di controlli. Cercale negli altri file e trova le classi corrette da applicare */}
         <div className="controls-bar">
-          <div className="">
-            <div className="">
+          <div className="controls-group">
+            <div className="field">
               <label htmlFor="top-limit-select">Quante storie vuoi vedere</label>
               <select
                 id="top-limit-select"
@@ -105,7 +107,9 @@ function Radar() {
               <p>{errorMessage}</p>
             </div>
           )}
-          {status === 'empty' && <div className="state-panel empty">Nessuna story disponibile al momento.</div>}
+          {status === 'empty' && (
+            <div className="state-panel empty">Nessuna story disponibile al momento.</div>
+          )}
           {status === 'ready' && (
             <>
               <div className="stat-card">
@@ -130,7 +134,9 @@ function Radar() {
               </div>
               <div className="stat-card">
                 <span className="stat-label">Più discussa</span>
-                <strong className="stat-value">{mostDiscussed ? mostDiscussed.descendants : 0}</strong>
+                <strong className="stat-value">
+                  {mostDiscussed ? mostDiscussed.descendants : 0}
+                </strong>
                 <p className="stat-note">{mostDiscussed ? mostDiscussed.title : 'N/D'}</p>
               </div>
             </>
@@ -153,7 +159,9 @@ function Radar() {
               <p>{errorMessage}</p>
             </div>
           )}
-          {status === 'empty' && <div className="state-panel empty">Nessuna story disponibile al momento.</div>}
+          {status === 'empty' && (
+            <div className="state-panel empty">Nessuna story disponibile al momento.</div>
+          )}
           {status === 'ready' &&
             stories.map((story) => (
               <StoryCard
