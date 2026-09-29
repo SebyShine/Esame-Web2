@@ -1,6 +1,6 @@
 // api.js - accesso alla Hacker News API
 
-const API_BASE = "https://hacker-news.firebaseio.com/v0";
+const API_BASE = 'https://hacker-news.firebaseio.com/v0';
 
 /**
  * Converte un timestamp UNIX in una stringa localizzata.
@@ -9,11 +9,11 @@ const API_BASE = "https://hacker-news.firebaseio.com/v0";
  * @returns {string}
  */
 function formatUnixDate(timestampSeconds) {
-    if (!Number.isFinite(timestampSeconds) || timestampSeconds <= 0) {
-        return "N/D";
-    }
+  if (!Number.isFinite(timestampSeconds) || timestampSeconds <= 0) {
+    return 'N/D';
+  }
 
-    return new Date(timestampSeconds * 1000).toLocaleString("it-IT");
+  return new Date(timestampSeconds * 1000).toLocaleString('it-IT');
 }
 
 /**
@@ -23,24 +23,24 @@ function formatUnixDate(timestampSeconds) {
  * @returns {object|null}
  */
 function mapItem(item) {
-    if (!item) {
-        return null;
-    }
+  if (!item) {
+    return null;
+  }
 
-    return {
-        id: item.id,
-        type: item.type || "unknown",
-        by: item.by || "anon",
-        title: item.title || "",
-        text: item.text || "",
-        url: item.url || "",
-        score: Number(item.score) || 0,
-        descendants: Number(item.descendants) || 0,
-        kids: Array.isArray(item.kids) ? item.kids : [],
-        parent: item.parent || null,
-        time: Number(item.time) || 0,
-        timeLabel: formatUnixDate(Number(item.time) || 0),
-    };
+  return {
+    id: item.id,
+    type: item.type || 'unknown',
+    by: item.by || 'anon',
+    title: item.title || '',
+    text: item.text || '',
+    url: item.url || '',
+    score: Number(item.score) || 0,
+    descendants: Number(item.descendants) || 0,
+    kids: Array.isArray(item.kids) ? item.kids : [],
+    parent: item.parent || null,
+    time: Number(item.time) || 0,
+    timeLabel: formatUnixDate(Number(item.time) || 0),
+  };
 }
 
 /**
@@ -51,11 +51,22 @@ function mapItem(item) {
  * @returns {Promise<any>}
  */
 async function requestJson(url, errorPrefix) {
-    // TODO 1: Implementare la fetch e restituire il JSON parsato
+  // TODO 1: Implementare la fetch e restituire il JSON parsato
+  try {
     // Il parametro url contiene un già un endpoint completo e bisogna solo fare la chiamata
+    const response = await fetch(url);
+
     // Poi in caso di errore rella risposta, mandare un messaggio di errore che contenga il prefisso errorPrefix e l'eventuale messaggio di errore restituito dalla fetch
+    if (!response.ok) {
+      throw new Error(`Status HTTP ${response.status}`);
+    }
+
     // Infine restituisci i dati parsati come oggetto, senza manipolarli o trasformarli
+    return await response.json();
     // Controlla sempre anche errori di rete o altri errori imprevisti con un catch e restituisci un messaggio di errore coerente con il prefisso
+  } catch (error) {
+    throw new Error(`${errorPrefix}: ${error.message}`);
+  }
 }
 
 /**
@@ -64,15 +75,13 @@ async function requestJson(url, errorPrefix) {
  * @returns {Promise<Array<number>>}
  */
 export async function getTopStoryIds() {
-    const data = await requestJson(`${API_BASE}/topstories.json`, "Errore recupero top stories");
+  const data = await requestJson(`${API_BASE}/topstories.json`, 'Errore recupero top stories');
 
-    if (!Array.isArray(data)) {
-        return [];
-    }
+  if (!Array.isArray(data)) {
+    return [];
+  }
 
-    return data
-        .map((id) => Number(id))
-        .filter((id) => Number.isFinite(id) && id > 0);
+  return data.map((id) => Number(id)).filter((id) => Number.isFinite(id) && id > 0);
 }
 
 /**
@@ -82,14 +91,14 @@ export async function getTopStoryIds() {
  * @returns {Promise<object>}
  */
 export async function getItemById(id) {
-    const itemId = Number(id);
+  const itemId = Number(id);
 
-    if (!Number.isFinite(itemId) || itemId <= 0) {
-        throw new Error("ID item non valido");
-    }
+  if (!Number.isFinite(itemId) || itemId <= 0) {
+    throw new Error('ID item non valido');
+  }
 
-    const data = await requestJson(`${API_BASE}/item/${itemId}.json`, "Errore recupero item");
-    return mapItem(data);
+  const data = await requestJson(`${API_BASE}/item/${itemId}.json`, 'Errore recupero item');
+  return mapItem(data);
 }
 
 /**
@@ -99,15 +108,15 @@ export async function getItemById(id) {
  * @returns {Promise<Array<object>>}
  */
 export async function getItemsByIds(ids) {
-    if (!Array.isArray(ids) || ids.length === 0) {
-        return [];
-    }
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return [];
+  }
 
-    const settled = await Promise.allSettled(ids.map((id) => getItemById(id)));
+  const settled = await Promise.allSettled(ids.map((id) => getItemById(id)));
 
-    return settled
-        .filter((result) => result.status === "fulfilled" && result.value)
-        .map((result) => result.value);
+  return settled
+    .filter((result) => result.status === 'fulfilled' && result.value)
+    .map((result) => result.value);
 }
 
 /**
@@ -118,26 +127,23 @@ export async function getItemsByIds(ids) {
  * @param {number} [options.batchSize=15] - Dimensione batch
  * @returns {Promise<Array<object>>}
  */
-export async function getTopStoriesDetailed({
-    total = 30,
-    batchSize = 15,
-} = {}) {
-    const ids = await getTopStoryIds();
-    const selected = ids.slice(0, total);
-    const stories = [];
+export async function getTopStoriesDetailed({ total = 30, batchSize = 15 } = {}) {
+  const ids = await getTopStoryIds();
+  const selected = ids.slice(0, total);
+  const stories = [];
 
-    for (let index = 0; index < selected.length; index += batchSize) {
-        const batchIds = selected.slice(index, index + batchSize);
-        const batchItems = await getItemsByIds(batchIds);
+  for (let index = 0; index < selected.length; index += batchSize) {
+    const batchIds = selected.slice(index, index + batchSize);
+    const batchItems = await getItemsByIds(batchIds);
 
-        batchItems
-            .filter((item) => item && item.type === "story")
-            .forEach((item) => {
-                stories.push(item);
-            });
-    }
+    batchItems
+      .filter((item) => item && item.type === 'story')
+      .forEach((item) => {
+        stories.push(item);
+      });
+  }
 
-    return stories;
+  return stories;
 }
 
 /**
@@ -147,26 +153,29 @@ export async function getTopStoriesDetailed({
  * @returns {Promise<object>}
  */
 export async function getUserById(userId) {
-    const id = String(userId || "").trim();
+  const id = String(userId || '').trim();
 
-    if (!id) {
-        throw new Error("Username non valido");
-    }
+  if (!id) {
+    throw new Error('Username non valido');
+  }
 
-    const data = await requestJson(`${API_BASE}/user/${encodeURIComponent(id)}.json`, "Errore recupero utente");
+  const data = await requestJson(
+    `${API_BASE}/user/${encodeURIComponent(id)}.json`,
+    'Errore recupero utente'
+  );
 
-    if (!data) {
-        throw new Error("Utente non trovato");
-    }
+  if (!data) {
+    throw new Error('Utente non trovato');
+  }
 
-    return {
-        id: data.id,
-        karma: Number(data.karma) || 0,
-        about: data.about || "",
-        created: Number(data.created) || 0,
-        createdLabel: formatUnixDate(Number(data.created) || 0),
-        submitted: Array.isArray(data.submitted) ? data.submitted : [],
-    };
+  return {
+    id: data.id,
+    karma: Number(data.karma) || 0,
+    about: data.about || '',
+    created: Number(data.created) || 0,
+    createdLabel: formatUnixDate(Number(data.created) || 0),
+    submitted: Array.isArray(data.submitted) ? data.submitted : [],
+  };
 }
 
 /**
@@ -177,22 +186,22 @@ export async function getUserById(userId) {
  * @returns {Promise<{user: object, items: Array<object>}>}
  */
 export async function getUserSubmittedItems(userId, limit = 20) {
-    const user = await getUserById(userId);
-    const ids = user.submitted.slice(0, limit);
-    const items = [];
+  const user = await getUserById(userId);
+  const ids = user.submitted.slice(0, limit);
+  const items = [];
 
-    const settled = await Promise.allSettled(ids.map((id) => getItemById(id)));
+  const settled = await Promise.allSettled(ids.map((id) => getItemById(id)));
 
-    settled.forEach((result) => {
-        if (result.status === "fulfilled" && result.value) {
-            items.push(result.value);
-        }
-    });
+  settled.forEach((result) => {
+    if (result.status === 'fulfilled' && result.value) {
+      items.push(result.value);
+    }
+  });
 
-    return {
-        user,
-        items,
-    };
+  return {
+    user,
+    items,
+  };
 }
 
 /**
@@ -202,9 +211,9 @@ export async function getUserSubmittedItems(userId, limit = 20) {
  * @returns {Promise<Array<object>>}
  */
 export async function getCommentChildren(comment) {
-    if (!comment || !Array.isArray(comment.kids) || comment.kids.length === 0) {
-        return [];
-    }
+  if (!comment || !Array.isArray(comment.kids) || comment.kids.length === 0) {
+    return [];
+  }
 
-    return getItemsByIds(comment.kids);
+  return getItemsByIds(comment.kids);
 }
