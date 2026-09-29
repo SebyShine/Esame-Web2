@@ -91,7 +91,7 @@ function Radar() {
           </div>
           <button
             id="top-refresh-button"
-            className=""
+            className="btn btn-primary"
             type="button"
             onClick={() => setReloadKey((current) => current + 1)}
           >
