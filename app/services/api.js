@@ -65,6 +65,7 @@ async function requestJson(url, errorPrefix) {
     return await response.json();
     // Controlla sempre anche errori di rete o altri errori imprevisti con un catch e restituisci un messaggio di errore coerente con il prefisso
   } catch (error) {
+    /*@ts-ignore*/
     throw new Error(`${errorPrefix}: ${error.message}`);
   }
 }
@@ -114,9 +115,12 @@ export async function getItemsByIds(ids) {
 
   const settled = await Promise.allSettled(ids.map((id) => getItemById(id)));
 
-  return settled
-    .filter((result) => result.status === 'fulfilled' && result.value)
-    .map((result) => result.value);
+  return (
+    settled
+      .filter((result) => result.status === 'fulfilled' && result.value)
+      /*@ts-ignore */
+      .map((result) => result.value)
+  );
 }
 
 /**
